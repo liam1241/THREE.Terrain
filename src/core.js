@@ -163,7 +163,6 @@ THREE.Terrain.Normalize = function(mesh, options) {
 
     // Mark the geometry as having changed and needing updates.
     mesh.geometry.computeBoundingSphere();
-    mesh.geometry.computeFaceNormals();
     mesh.geometry.computeVertexNormals();
 };
 
