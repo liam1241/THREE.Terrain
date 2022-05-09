@@ -225,52 +225,6 @@ THREE.Terrain.GEOCLIPMAP = 2;
 THREE.Terrain.POLYGONREDUCTION = 3;
 
 /**
- * Get a 2D array of heightmap values from a 1D array of Z-positions.
- *
- * @param {Float32Array} vertices
- *   A 1D array containing the vertex Z-positions of the geometry representing
- *   the terrain.
- * @param {Object} options
- *   A map of settings defining properties of the terrain. The only properties
- *   that matter here are `xSegments` and `ySegments`, which represent how many
- *   vertices wide and deep the terrain plane is, respectively (and therefore
- *   also the dimensions of the returned array).
- *
- * @return {Float32Array[]}
- *   A 2D array representing the terrain's heightmap.
- */
-THREE.Terrain.toArray2D = function(vertices, options) {
-    var tgt = new Array(options.xSegments + 1),
-        xl = options.xSegments + 1,
-        yl = options.ySegments + 1,
-        i, j;
-    for (i = 0; i < xl; i++) {
-        tgt[i] = new Float32Array(options.ySegments + 1);
-        for (j = 0; j < yl; j++) {
-            tgt[i][j] = vertices[j * xl + i];
-        }
-    }
-    return tgt;
-};
-
-/**
- * Set the height of plane vertices from a 2D array of heightmap values.
- *
- * @param {Float32Array} vertices
- *   A 1D array containing the vertex Z-positions of the geometry representing
- *   the terrain.
- * @param {Number[][]} src
- *   A 2D array representing a heightmap to apply to the terrain.
- */
-THREE.Terrain.fromArray2D = function(vertices, src) {
-    for (var i = 0, xl = src.length; i < xl; i++) {
-        for (var j = 0, yl = src[i].length; j < yl; j++) {
-            vertices[j * xl + i] = src[i][j];
-        }
-    }
-};
-
-/**
  * Get a 1D array of heightmap values from a 1D array of plane vertices.
  *
  * @param {Float32Array} vertices
@@ -309,68 +263,8 @@ THREE.Terrain.fromArray1D = function(vertices, src) {
 };
 
 /**
- * Generate a 1D array containing random heightmap data.
- *
- * This is like {@link THREE.Terrain.toHeightmap} except that instead of
- * generating the Three.js mesh and material information you can just get the
- * height data.
- *
- * @param {Function} method
- *   The method to use to generate the heightmap data. Works with function that
- *   would be an acceptable value for the `heightmap` option for the
- *   {@link THREE.Terrain} function.
- * @param {Number} options
- *   The same as the options parameter for the {@link THREE.Terrain} function.
- */
-THREE.Terrain.heightmapArray = function(method, options) {
-    var arr = new Array((options.xSegments+1) * (options.ySegments+1)),
-        l = arr.length,
-        i;
-    arr.fill(0);
-    options.minHeight = options.minHeight || 0;
-    options.maxHeight = typeof options.maxHeight === 'undefined' ? 1 : options.maxHeight;
-    options.stretch = options.stretch || false;
-    method(arr, options);
-    THREE.Terrain.Clamp(arr, options);
-    return arr;
-};
-
-/**
  * Randomness interpolation functions.
  */
 THREE.Terrain.Linear = function(x) {
     return x;
-};
-
-// x = [0, 1], x^2
-THREE.Terrain.EaseIn = function(x) {
-    return x*x;
-};
-
-// x = [0, 1], -x(x-2)
-THREE.Terrain.EaseOut = function(x) {
-    return -x * (x - 2);
-};
-
-// x = [0, 1], x^2(3-2x)
-// Nearly identical alternatives: 0.5+0.5*cos(x*pi-pi), x^a/(x^a+(1-x)^a) (where a=1.6 seems nice)
-// For comparison: http://www.wolframalpha.com/input/?i=x^1.6%2F%28x^1.6%2B%281-x%29^1.6%29%2C+x^2%283-2x%29%2C+0.5%2B0.5*cos%28x*pi-pi%29+from+0+to+1
-THREE.Terrain.EaseInOut = function(x) {
-    return x*x*(3-2*x);
-};
-
-// x = [0, 1], 0.5*(2x-1)^3+0.5
-THREE.Terrain.InEaseOut = function(x) {
-    var y = 2*x-1;
-    return 0.5 * y*y*y + 0.5;
-};
-
-// x = [0, 1], x^1.55
-THREE.Terrain.EaseInWeak = function(x) {
-    return Math.pow(x, 1.55);
-};
-
-// x = [0, 1], x^7
-THREE.Terrain.EaseInStrong = function(x) {
-    return x*x*x*x*x*x*x;
 };
